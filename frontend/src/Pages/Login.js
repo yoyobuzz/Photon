@@ -23,7 +23,7 @@ const Login = () => {
     formData.append('client_secret', '');
 
     try {
-      const response = await axios.post(`/api/token`, formData, {
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/token`, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
