@@ -25,7 +25,10 @@ const Album = () => {
   const apiSecret = process.env.REACT_APP_CLOUDINARY_API_SECRET;
   
   useEffect(() => {
-    ReactGA.pageview(window.location.pathname + window.location.search); // Track page views
+    ReactGA.send({
+      hitType: "pageview",
+      page: window.location.pathname + window.location.search
+    }); // Track page views
   }, []);
   
   const handleFileChange = async (e) => {
@@ -79,10 +82,11 @@ const Album = () => {
     
     setLoading(false);
     fetchAllCloudinaryImages();
-    ReactGA.event({ // Track upload event
-      category: 'User',
-      action: 'Uploaded Images',
-      label: 'Album Upload',
+    ReactGA.send({ // Track upload event
+      hitType: 'event',
+      eventCategory: 'User',
+      eventAction: 'Uploaded Images',
+      eventLabel: 'Album Upload',
     });
   };
 
@@ -112,19 +116,21 @@ const Album = () => {
   const handleScrollToGallery = () => {
     fetchAllCloudinaryImages();
     document.getElementById('gallery-section').scrollIntoView({ behavior: 'smooth' });
-    ReactGA.event({ // Track "View All" event
-      category: 'User',
-      action: 'Viewed All Images',
-      label: 'Gallery View',
+    ReactGA.send({ // Track "View All" event
+      hitType: 'event',
+      eventCategory: 'User',
+      eventAction: 'Viewed All Images',
+      eventLabel: 'Gallery View',
     });
   };
 
   const handleViewMine = () => {
     setIsModalOpen(true); // Open the modal when "View Mine" is clicked
-    ReactGA.event({ // Track "View Mine" event
-      category: 'User',
-      action: 'Viewed Modal',
-      label: 'Face Detection',
+    ReactGA.send({ // Track "View Mine" event
+      hitType: 'event',
+      eventCategory: 'User',
+      eventAction: 'Viewed Modal',
+      eventLabel: 'Face Detection',
     });
   };
 
