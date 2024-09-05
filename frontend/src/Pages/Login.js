@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../Assets/logo.png';
+import ReactGA from 'react-ga4';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -35,13 +36,28 @@ const Login = () => {
         localStorage.setItem('token', access_token);
         setUsername('');
         setPassword('');
+        ReactGA.event({
+          category: 'User',
+          action: 'Login Successful',
+          label: username,
+        });
         navigate('/'); // Redirect to the home page
       }
     } catch (error) {
       if (error.response && error.response.status === 422) {
         setError('Validation Error: Please check your input.');
+        ReactGA.event({
+          category: 'User',
+          action: 'Login Failed',
+          label: 'Validation Error',
+        });
       } else {
         setError('Login failed. Please try again later.');
+        ReactGA.event({
+          category: 'User',
+          action: 'Login Failed',
+          label: 'Server Error',
+        });
       }
     }
   };

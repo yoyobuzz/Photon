@@ -4,6 +4,7 @@ import axios from 'axios';
 import './Home.css';
 import back from '../Assets/back.jpg';
 import Navbar from '../Components/Navbar';
+import ReactGA from 'react-ga4'; // Import Google Analytics library
 
 const Home = () => {
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
@@ -20,6 +21,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    ReactGA.send({ hitType: 'pageview', page: window.location.pathname }); // Track page view
     fetchAllAlbums();
   }, []);
 
@@ -29,30 +31,35 @@ const Home = () => {
       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/user/albums`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`, // Ensure authToken is available in your component
+          'Authorization': `Bearer ${authToken}`,
         },
       });
 
-      if (response.status === 200) { // Assuming 200 OK status for a successful response
+      if (response.status === 200) {
         const albums = response.data.map(album => ({ ids: album._id, name: album.album_name }));
-        console.log(setAlbums);
         setAlbums(albums);
         setLoading(false);
       } else {
         console.error('Unexpected response:', response.statusText);
         setLoading(false);
-        //setError('An error occurred while fetching albums');
       }
     } catch (error) {
       console.error('Error fetching albums:', error);
       setLoading(false);
-      //setError('An error occurred while fetching albums');
+      ReactGA.event({
+        category: 'API',
+        action: 'Fetch Albums Failed',
+        label: error.message,
+      });
     }
-
   };
 
-
   const handleAlbumClick = (albumId, album_name) => {
+    ReactGA.event({
+      category: 'User Interaction',
+      action: 'Album Clicked',
+      label: album_name,
+    });
     navigate(`/albums/${albumId}`, { state: { album_name } });
   };
 
@@ -66,7 +73,6 @@ const Home = () => {
       };
 
       try {
-
         const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/albums`, newAlbum, {
           headers: {
             'Content-Type': 'application/json',
@@ -75,6 +81,11 @@ const Home = () => {
         });
 
         if (response.status === 201) {
+          ReactGA.event({
+            category: 'User Interaction',
+            action: 'Album Created',
+            label: newAlbumTitle,
+          });
         } else {
           console.error('Unexpected response:', response.statusText);
         }
@@ -84,6 +95,11 @@ const Home = () => {
         document.getElementById('album-section').scrollIntoView({ behavior: 'smooth' });
       } catch (error) {
         console.error('Error creating album:', error);
+        ReactGA.event({
+          category: 'API',
+          action: 'Create Album Failed',
+          label: error.message,
+        });
       }
     }
     fetchAllAlbums();
@@ -107,6 +123,11 @@ const Home = () => {
         });
 
         if (response.status === 201) {
+          ReactGA.event({
+            category: 'User Interaction',
+            action: 'Album Imported',
+            label: newAlbumTitle,
+          });
         } else {
           console.error('Unexpected response:', response.statusText);
         }
@@ -116,12 +137,15 @@ const Home = () => {
         document.getElementById('album-section').scrollIntoView({ behavior: 'smooth' });
       } catch (error) {
         console.error('Error importing album:', error);
+        ReactGA.event({
+          category: 'API',
+          action: 'Import Album Failed',
+          label: error.message,
+        });
       }
     }
     fetchAllAlbums();
   };
-
-
 
   return (
     <div className="all-album-view">
@@ -158,7 +182,9 @@ const Home = () => {
               required
               className="input"
             />
-            <div className="submit-btn"><button type="submit" className="submit-button">Create</button></div>
+            <div className="submit-btn">
+              <button type="submit" className="submit-button">Create</button>
+            </div>
           </form>
         </div>
       )}
@@ -183,7 +209,9 @@ const Home = () => {
               required
               className="input"
             />
-            <div className="submit-btn"><button type="submit" className="submit-button">Import</button></div>
+            <div className="submit-btn">
+              <button type="submit" className="submit-button">Import</button>
+            </div>
           </form>
         </div>
       )}

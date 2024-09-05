@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './SignUp.css';
 import logo from '../Assets/logo.png';
+import ReactGA from 'react-ga4';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -30,13 +31,28 @@ const SignUp = () => {
         localStorage.setItem('token', access_token);
         setEmail('');
         setPassword('');
+        ReactGA.event({
+          category: 'User',
+          action: 'Sign Up Successful',
+          label: email,
+        });
         navigate('/'); // Redirect to the home page
       }
     } catch (error) {
       if (error.response && error.response.status === 422) {
         setError('Validation Error: Please check your input.');
+        ReactGA.event({
+          category: 'User',
+          action: 'Sign Up Failed',
+          label: 'Validation Error',
+        });
       } else {
         setError('Sign-Up failed. Please try again later.');
+        ReactGA.event({
+          category: 'User',
+          action: 'Sign Up Failed',
+          label: 'Server Error',
+        });
       }
     }
   };
@@ -78,7 +94,9 @@ const SignUp = () => {
               />
             </div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div className="signup-btn"><button type="submit" className="sign-up-button">Sign Up</button></div>
+            <div className="signup-btn">
+              <button type="submit" className="sign-up-button">Sign Up</button>
+            </div>
           </form>
           <p className="login-text">
             Already have an account? <a href="/login">Log In</a>

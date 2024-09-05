@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import Modal from '../Components/Modal';
 import CustomWebcam from '../Components/CustomWebcam';
 import download from '../Assets/download.png';
+import ReactGA from 'react-ga4'; // Import ReactGA
 import './Album.css';
 
 const Album = () => {
@@ -23,6 +24,9 @@ const Album = () => {
   const apiKey = process.env.REACT_APP_CLOUDINARY_API_KEY;
   const apiSecret = process.env.REACT_APP_CLOUDINARY_API_SECRET;
   
+  useEffect(() => {
+    ReactGA.pageview(window.location.pathname + window.location.search); // Track page views
+  }, []);
   
   const handleFileChange = async (e) => {
     setImages(e.target.files);
@@ -75,9 +79,13 @@ const Album = () => {
     
     setLoading(false);
     fetchAllCloudinaryImages();
+    ReactGA.event({ // Track upload event
+      category: 'User',
+      action: 'Uploaded Images',
+      label: 'Album Upload',
+    });
   };
 
-  
   const fetchAllCloudinaryImages = async () => {
     setLoading(true); // Show loading pop-up
     try {
@@ -104,10 +112,20 @@ const Album = () => {
   const handleScrollToGallery = () => {
     fetchAllCloudinaryImages();
     document.getElementById('gallery-section').scrollIntoView({ behavior: 'smooth' });
+    ReactGA.event({ // Track "View All" event
+      category: 'User',
+      action: 'Viewed All Images',
+      label: 'Gallery View',
+    });
   };
 
   const handleViewMine = () => {
     setIsModalOpen(true); // Open the modal when "View Mine" is clicked
+    ReactGA.event({ // Track "View Mine" event
+      category: 'User',
+      action: 'Viewed Modal',
+      label: 'Face Detection',
+    });
   };
 
   const handleImagesReceived = (cloudinaryLinks) => {
@@ -141,7 +159,7 @@ const Album = () => {
             <div className="seperation">|</div>
             <div className="upload">
               <input type="file" multiple onInput={handleFileChange} />
-              <button className="action-button" onClick={(handleUpload)}>Upload</button>
+              <button className="action-button" onClick={handleUpload}>Upload</button>
             </div>
           </div>
         </div>
